@@ -1,0 +1,2104 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>📦 Inventario Móvil</title>
+    <style>
+        /* --- Reset y estilos generales --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+            padding: 12px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+        h1,
+        h2,
+        h3 {
+            font-weight: 600;
+        }
+
+        /* --- Header --- */
+        header {
+            background: #1e293b;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 0 0 16px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            gap: 8px;
+        }
+        header h1 {
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        header p {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin: 0;
+        }
+        .header-center {
+            text-align: center;
+            flex: 1;
+        }
+        .badge-count {
+            background: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            flex-shrink: 0;
+            touch-action: manipulation;
+        }
+
+        /* --- Buscador --- */
+        .buscador {
+            margin-bottom: 12px;
+        }
+        .buscador input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            background: white;
+            transition: 0.2s;
+            font-family: inherit;
+            outline: none;
+        }
+        .buscador input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* --- Toolbar --- */
+        .toolbar {
+            margin-bottom: 12px;
+            background: white;
+            padding: 12px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .toolbar-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .toolbar button {
+            flex: 1 1 auto;
+            min-width: 60px;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 30px;
+            background: #eef2f6;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            touch-action: manipulation;
+        }
+        .toolbar button:active {
+            transform: scale(0.96);
+        }
+        .toolbar button.danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .toolbar button.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        /* --- Tabla --- */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 480px;
+        }
+        thead {
+            background: #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        th {
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .nombre-cell {
+            font-weight: 500;
+            min-width: 90px;
+        }
+        .ubicacion-cell {
+            min-width: 80px;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        .stock-cell {
+            text-align: center;
+            font-weight: 500;
+        }
+        .conteo-cell input {
+            width: 70px;
+            padding: 6px 6px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: white;
+            transition: 0.2s;
+        }
+        .conteo-cell input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .ubicacion-cell input {
+            width: 100%;
+            min-width: 90px;
+            padding: 6px 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: white;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .ubicacion-cell input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .diferencia-cell {
+            font-weight: 700;
+            text-align: center;
+            padding: 4px 8px;
+            border-radius: 30px;
+            background: #f1f5f9;
+            min-width: 60px;
+        }
+        .diferencia-cell.positiva {
+            color: #16a34a;
+            background: #dcfce7;
+        }
+        .diferencia-cell.negativa {
+            color: #dc2626;
+            background: #fee2e2;
+        }
+        .diferencia-cell.cero {
+            color: #64748b;
+            background: #f1f5f9;
+        }
+
+        .acciones-cell {
+            display: flex;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+        .acciones-cell button {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 8px;
+            transition: 0.15s;
+            touch-action: manipulation;
+        }
+        .acciones-cell button:hover {
+            background: #f1f5f9;
+        }
+        .acciones-cell .btn-editar {
+            color: #3b82f6;
+        }
+        .acciones-cell .btn-eliminar {
+            color: #ef4444;
+        }
+
+        /* --- Mensaje vacío --- */
+        .empty-row td {
+            text-align: center;
+            padding: 40px 10px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        /* --- Modales --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 16px;
+            backdrop-filter: blur(2px);
+            transition: opacity 0.25s;
+        }
+        .modal.hidden {
+            display: none;
+            opacity: 0;
+        }
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 24px 20px 28px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-content .close {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.8rem;
+            font-weight: 300;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.2s;
+            line-height: 1;
+        }
+        .modal-content .close:hover {
+            color: #1e293b;
+        }
+        .modal-content h2 {
+            margin-bottom: 16px;
+            font-size: 1.4rem;
+        }
+        .modal-content label {
+            display: block;
+            margin-top: 12px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-top: 4px;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .modal-content input:focus,
+        .modal-content textarea:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .modal-content textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .modal-content button[type="submit"],
+        .modal-content .btn-procesar {
+            margin-top: 18px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            background: #3b82f6;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            touch-action: manipulation;
+        }
+        .modal-content button[type="submit"]:active,
+        .modal-content .btn-procesar:active {
+            transform: scale(0.97);
+        }
+        .modal-content .btn-secundario {
+            background: #eef2f6;
+            color: #1e293b;
+            margin-top: 10px;
+        }
+        .modal-content .btn-peligro {
+            background: #ef4444;
+        }
+
+        /* --- input file oculto --- */
+        .hidden-input {
+            display: none;
+        }
+
+        /* --- Menú hamburguesa overlay --- */
+        .overlay-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+        }
+        .overlay-menu.open {
+            display: block;
+        }
+        .overlay-menu-content {
+            background: white;
+            width: 260px;
+            height: 100%;
+            padding: 20px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: slideIn 0.25s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .overlay-menu-content button {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 14px;
+            background: #eef2f6;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            touch-action: manipulation;
+        }
+        .overlay-menu-content button:active {
+            transform: scale(0.97);
+        }
+        .overlay-menu-content button.danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .overlay-menu-content button.primary {
+            background: #3b82f6;
+            color: white;
+        }
+        .overlay-menu-close {
+            align-self: flex-end;
+            background: none !important;
+            font-size: 1.8rem;
+            padding: 4px !important;
+            width: auto !important;
+            color: #94a3b8 !important;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+                padding-bottom: 70px;
+            }
+            header {
+                padding: 10px 12px;
+                border-radius: 0 0 12px 12px;
+                margin-bottom: 8px;
+                gap: 4px;
+            }
+            header h1 {
+                font-size: 1.15rem;
+            }
+            header p {
+                font-size: 0.7rem;
+            }
+            .hamburger {
+                display: block;
+            }
+            .toolbar-buttons {
+                display: none;
+            }
+            .toolbar-buttons.open {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .toolbar {
+                padding: 8px;
+            }
+            .table-container {
+                border-radius: 0;
+            }
+            table {
+                font-size: 0.8rem;
+                min-width: 400px;
+            }
+            th,
+            td {
+                padding: 8px 6px;
+            }
+            .conteo-cell input {
+                width: 56px;
+                padding: 4px 4px;
+                font-size: 0.85rem;
+            }
+            .buscador {
+                padding: 0 8px;
+            }
+            .modal-content {
+                padding: 20px 16px;
+            }
+        }
+        @media (max-width: 400px) {
+            table {
+                font-size: 0.7rem;
+                min-width: 340px;
+            }
+            .conteo-cell input {
+                width: 48px;
+                padding: 3px 2px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* --- Filtros rápidos --- */
+        .filtros-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 0;
+        }
+        .filtro-chip {
+            padding: 5px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            background: white;
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        .filtro-chip:active {
+            transform: scale(0.95);
+        }
+        .filtro-chip.activo {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        .filtro-chip .chip-count {
+            background: #e2e8f0;
+            color: #475569;
+            border-radius: 30px;
+            padding: 0 8px;
+            margin-left: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .filtro-chip.activo .chip-count {
+            background: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        /* --- Barra ERI --- */
+        .eri-bar {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px 20px;
+        }
+        .eri-label {
+            font-weight: 700;
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+        .eri-label.buena { color: #16a34a; }
+        .eri-label.media { color: #eab308; }
+        .eri-label.mala { color: #dc2626; }
+        .eri-stat {
+            font-size: 0.8rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .eri-stat strong {
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+        .eri-stat-divider {
+            width: 1px;
+            height: 20px;
+            background: #e2e8f0;
+        }
+
+        /* --- Modal snapshots (historial) --- */
+        .snap-lista {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .snap-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .snap-item:last-child {
+            border-bottom: none;
+        }
+        .snap-info {
+            flex: 1;
+        }
+        .snap-fecha {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .snap-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .snap-eri {
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 12px;
+        }
+        .snap-eri.buena { color: #16a34a; }
+        .snap-eri.media { color: #eab308; }
+        .snap-eri.mala { color: #dc2626; }
+        .snap-btn-ver {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 20px;
+            background: #3b82f6;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .snap-btn-ver:active {
+            transform: scale(0.95);
+        }
+        .snap-vacio {
+            text-align: center;
+            padding: 30px 10px;
+            color: #94a3b8;
+        }
+        .snap-tabla-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 8px;
+        }
+        .snap-fecha-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .filtros-bar {
+                padding: 0 8px;
+            }
+            .eri-bar {
+                margin-left: 8px;
+                margin-right: 8px;
+                font-size: 0.85rem;
+                padding: 10px 12px;
+            }
+            .eri-label {
+                font-size: 1rem;
+            }
+        }
+
+        /* --- Modal escáner QR --- */
+        .scanner-container {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            min-height: 200px;
+        }
+        .scanner-container video {
+            width: 100%;
+            display: block;
+        }
+        .scanner-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .scanner-controls button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .scanner-controls button:active {
+            transform: scale(0.97);
+        }
+        .btn-scanner-start {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-scanner-stop {
+            background: #ef4444;
+            color: white;
+        }
+        .scanner-status {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+        .scanner-resultado {
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .scanner-resultado.ok {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .scanner-resultado.err {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- OVERLAY MENÚ HAMBURGUESA (mobile) -->
+    <div class="overlay-menu" id="overlayMenu">
+        <div class="overlay-menu-content">
+            <button class="overlay-menu-close" id="btnCerrarOverlay">&times;</button>
+            <button id="ovBtnAgregar" class="primary">➕ Agregar</button>
+            <button id="ovBtnCargaMasiva">📥 Carga Masiva</button>
+            <button id="ovBtnExportar">📤 Exportar</button>
+            <button id="ovBtnImportar">📂 Importar</button>
+            <button id="ovBtnScanner" class="primary">📷 Escanear</button>
+            <button id="ovBtnSnap">📸 Snap</button>
+            <button id="ovBtnHistorial">📜 Historial</button>
+            <button id="ovBtnLimpiar" class="danger">🗑️ Limpiar</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <button class="hamburger" id="btnHamburger">☰</button>
+        <div class="header-center">
+            <h1>📦 Inventario</h1>
+            <p>Conteos y diferencias</p>
+        </div>
+        <span class="badge-count" id="contadorProductos">0</span>
+    </header>
+
+    <!-- BUSCADOR -->
+    <div class="buscador">
+        <input type="text" id="inputBuscar" placeholder="🔍 Buscar producto..." autocomplete="off">
+    </div>
+
+    <!-- FILTROS RÁPIDOS -->
+    <div class="filtros-bar" id="filtrosBar">
+        <button class="filtro-chip activo" data-filtro="todos">Todos <span class="chip-count" id="chipTodos">0</span></button>
+        <button class="filtro-chip" data-filtro="contados">Contados <span class="chip-count" id="chipContados">0</span></button>
+        <button class="filtro-chip" data-filtro="no_contados">No contados <span class="chip-count" id="chipNoContados">0</span></button>
+        <button class="filtro-chip" data-filtro="con_diferencia">Con diff <span class="chip-count" id="chipConDiferencia">0</span></button>
+        <button class="filtro-chip" data-filtro="sin_diferencia">Sin diff <span class="chip-count" id="chipSinDiferencia">0</span></button>
+    </div>
+
+    <!-- BARRA ERI -->
+    <div class="eri-bar" id="eriBar">
+        <span class="eri-label" id="eriLabel">📊 ERI: —</span>
+        <span class="eri-stat-divider"></span>
+        <span class="eri-stat">Correctos: <strong id="eriCorrectos">0</strong>/<strong id="eriTotal">0</strong></span>
+        <span class="eri-stat-divider"></span>
+        <span class="eri-stat">Stock total: <strong id="eriStockTotal">0</strong></span>
+        <span class="eri-stat">Conteo total: <strong id="eriConteoTotal">0</strong></span>
+        <span class="eri-stat">Diferencia total: <strong id="eriDiffTotal">0</strong></span>
+    </div>
+
+    <!-- TOOLBAR (escritorio) -->
+    <div class="toolbar">
+        <div class="toolbar-buttons" id="toolbarButtons">
+            <button id="btnAgregar" class="primary">➕ Agregar</button>
+            <button id="btnCargaMasiva">📥 Carga Masiva</button>
+            <button id="btnExportar">📤 Exportar</button>
+            <button id="btnImportar">📂 Importar</button>
+            <button id="btnScanner" class="primary">📷 Escanear</button>
+            <button id="btnSnap">📸 Snap</button>
+            <button id="btnHistorial">📜 Historial</button>
+            <button id="btnLimpiar" class="danger">🗑️ Limpiar</button>
+        </div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="table-container">
+        <table id="tablaInventario">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Ubicación</th>
+                    <th style="text-align:center;">Stock</th>
+                    <th style="text-align:center;">Conteo</th>
+                    <th style="text-align:center;">Diferencia</th>
+                    <th style="text-align:center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoTabla">
+                <!-- Las filas se generan con JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MODAL: AGREGAR / EDITAR -->
+    <div id="modalProducto" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="closeModalProducto">&times;</span>
+            <h2 id="modalTitulo">Agregar Producto</h2>
+            <form id="formProducto">
+                <input type="hidden" id="productoId">
+                <label>Nombre del producto *</label>
+                <input type="text" id="inputNombre" required placeholder="Ej: Laptop HP">
+                <label>Stock actual *</label>
+                <input type="number" id="inputStock" required min="0" step="1" placeholder="0">
+                <label>Ubicación</label>
+                <input type="text" id="inputUbicacion" placeholder="Ej: Bodega A, Estante 3">
+                <label>Conteo (opcional, por defecto 0)</label>
+                <input type="number" id="inputConteo" min="0" step="1" placeholder="0" value="0">
+                <button type="submit">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CARGA MASIVA -->
+    <div id="modalCargaMasiva" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="closeModalCarga">&times;</span>
+            <h2>📥 Carga Masiva</h2>
+            <p style="font-size:0.9rem; color:#475569; margin-bottom:10px;">
+                Pega datos en formato <strong>nombre,stock</strong> (uno por línea; conteo opcional).
+                También puedes <strong>subir un archivo CSV</strong> con cabecera: <em>nombre,stock,conteo</em>.
+            </p>
+            <textarea id="textoCarga" rows="8" placeholder="Ejemplo:&#10;Monitor Dell,5&#10;Teclado Mecánico,3&#10;Mouse USB,10"></textarea>
+            <button id="btnProcesarCarga" class="btn-procesar">Procesar texto</button>
+            <button id="btnSubirArchivo" class="btn-procesar btn-secundario" style="margin-top:8px;">📂 Subir archivo CSV</button>
+            <input type="file" id="fileInputCarga" accept=".csv" style="display:none;">
+        </div>
+    </div>
+
+    <!-- MODAL: HISTORIAL DE SNAPSHOTS -->
+    <div id="modalSnapLista" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="closeSnapLista">&times;</span>
+            <h2>📜 Historial de Instantáneas</h2>
+            <div class="snap-lista" id="snapLista">
+                <div class="snap-vacio">Aún no hay instantáneas guardadas.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VISOR DE SNAPSHOT -->
+    <div id="modalSnapVisor" class="modal hidden">
+        <div class="modal-content" style="max-width:600px;">
+            <span class="close" id="closeSnapVisor">&times;</span>
+            <h2>📸 Inventario: <span id="snapVisorFecha"></span></h2>
+            <div class="snap-fecha-header">
+                <span id="snapVisorEri"></span>
+                <button id="btnExportarSnap" class="btn-procesar" style="margin-top:6px;padding:8px 16px;font-size:0.85rem;width:auto;">📤 Exportar Excel</button>
+            </div>
+            <div class="snap-tabla-container" id="snapVisorTabla"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: ESCÁNER QR -->
+    <div id="modalScanner" class="modal hidden">
+        <div class="modal-content" style="max-width:420px;">
+            <span class="close" id="closeModalScanner">&times;</span>
+            <h2>📷 Escanear QR del rack</h2>
+            <div class="scanner-container" id="scannerReader"></div>
+            <div class="scanner-controls">
+                <button id="btnScannerStart" class="btn-scanner-start">▶ Iniciar cámara</button>
+                <button id="btnScannerStop" class="btn-scanner-stop">■ Detener</button>
+            </div>
+            <div class="scanner-status" id="scannerStatus">Presiona "Iniciar cámara" para empezar</div>
+            <div class="scanner-resultado" id="scannerResultado" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- INPUT OCULTO PARA IMPORTAR -->
+    <input type="file" id="importFileInput" accept=".csv,.json" style="display:none;">
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        (function() {
+            'use strict';
+
+            // --- Configuración Supabase ---
+            const SUPABASE_URL = 'https://npfcsxmoittlryvsfcxl.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wZmNzeG1vaXR0bHJ5dnNmY3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNjM5NzcsImV4cCI6MjA5NzgzOTk3N30._92EU1HH2ZfP6YJVjf2jU10to3900VHJkDGg5FkO7b8';
+
+            // --- Cliente Supabase vía fetch ---
+            const supabase = {
+                async _request(path, options = {}) {
+                    const url = `${SUPABASE_URL}/rest/v1/${path}`;
+                    const headers = {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    };
+                    const res = await fetch(url, { ...options, headers });
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(`Error ${res.status}: ${text}`);
+                    }
+                    if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+                    const ct = res.headers.get('content-type') || '';
+                    if (ct.includes('application/json')) return res.json();
+                    return null;
+                },
+                async getProductos() {
+                    return this._request('productos?select=*&order=created_at.asc');
+                },
+                async addProducto(producto) {
+                    return this._request('productos', {
+                        method: 'POST',
+                        headers: { 'Prefer': 'return=representation' },
+                        body: JSON.stringify(producto)
+                    });
+                },
+                async addProductos(productos) {
+                    return this._request('productos', {
+                        method: 'POST',
+                        headers: { 'Prefer': 'return=representation' },
+                        body: JSON.stringify(productos)
+                    });
+                },
+                async updateProducto(id, updates) {
+                    return this._request(`productos?id=eq.${id}`, {
+                        method: 'PATCH',
+                        headers: { 'Prefer': 'return=representation' },
+                        body: JSON.stringify(updates)
+                    });
+                },
+                async deleteProducto(id) {
+                    return this._request(`productos?id=eq.${id}`, { method: 'DELETE' });
+                },
+                async deleteAll() {
+                    return this._request(`productos?created_at=gte.2000-01-01`, { method: 'DELETE' });
+                },
+                async replaceAll(productos) {
+                    await this.deleteAll();
+                    return this.addProductos(productos);
+                },
+                async addSnapshot(snapshot) {
+                    return this._request('snapshots_inventario', {
+                        method: 'POST',
+                        headers: { 'Prefer': 'return=representation' },
+                        body: JSON.stringify(snapshot)
+                    });
+                },
+                async getSnapshots() {
+                    return this._request('snapshots_inventario?select=*&order=fecha.desc');
+                }
+            };
+
+            // --- Canal de sincronización entre pestañas ---
+            let channel = null;
+            try {
+                channel = new BroadcastChannel('inventario_channel');
+            } catch (_) {}
+
+            // --- Estado ---
+            let productos = [];
+            let terminoBusqueda = '';
+            let filtroActivo = 'todos';
+            let snapActualDatos = null;
+            let html5Scanner = null;
+            let scannerActivo = false;
+
+            // --- Referencias DOM ---
+            const cuerpoTabla = document.getElementById('cuerpoTabla');
+            const contadorSpan = document.getElementById('contadorProductos');
+
+            // Modales
+            const modalProducto = document.getElementById('modalProducto');
+            const modalCarga = document.getElementById('modalCargaMasiva');
+            const closeModalProducto = document.getElementById('closeModalProducto');
+            const closeModalCarga = document.getElementById('closeModalCarga');
+            const formProducto = document.getElementById('formProducto');
+            const productoId = document.getElementById('productoId');
+            const inputNombre = document.getElementById('inputNombre');
+            const inputStock = document.getElementById('inputStock');
+            const inputConteo = document.getElementById('inputConteo');
+            const inputUbicacion = document.getElementById('inputUbicacion');
+            const modalTitulo = document.getElementById('modalTitulo');
+
+            const textoCarga = document.getElementById('textoCarga');
+            const btnProcesarCarga = document.getElementById('btnProcesarCarga');
+            const btnSubirArchivo = document.getElementById('btnSubirArchivo');
+            const fileInputCarga = document.getElementById('fileInputCarga');
+
+            const importFileInput = document.getElementById('importFileInput');
+            const inputBuscar = document.getElementById('inputBuscar');
+            const filtrosBar = document.getElementById('filtrosBar');
+            const eriLabel = document.getElementById('eriLabel');
+            const eriCorrectos = document.getElementById('eriCorrectos');
+            const eriTotal = document.getElementById('eriTotal');
+            const eriStockTotal = document.getElementById('eriStockTotal');
+            const eriConteoTotal = document.getElementById('eriConteoTotal');
+            const eriDiffTotal = document.getElementById('eriDiffTotal');
+            const chipTodos = document.getElementById('chipTodos');
+            const chipContados = document.getElementById('chipContados');
+            const chipNoContados = document.getElementById('chipNoContados');
+            const chipConDiferencia = document.getElementById('chipConDiferencia');
+            const chipSinDiferencia = document.getElementById('chipSinDiferencia');
+            const modalSnapLista = document.getElementById('modalSnapLista');
+            const closeSnapLista = document.getElementById('closeSnapLista');
+            const snapLista = document.getElementById('snapLista');
+            const modalSnapVisor = document.getElementById('modalSnapVisor');
+            const closeSnapVisor = document.getElementById('closeSnapVisor');
+            const snapVisorFecha = document.getElementById('snapVisorFecha');
+            const snapVisorEri = document.getElementById('snapVisorEri');
+            const snapVisorTabla = document.getElementById('snapVisorTabla');
+            const btnExportarSnap = document.getElementById('btnExportarSnap');
+            const modalScanner = document.getElementById('modalScanner');
+            const closeModalScanner = document.getElementById('closeModalScanner');
+            const scannerReader = document.getElementById('scannerReader');
+            const btnScannerStart = document.getElementById('btnScannerStart');
+            const btnScannerStop = document.getElementById('btnScannerStop');
+            const scannerStatus = document.getElementById('scannerStatus');
+            const scannerResultado = document.getElementById('scannerResultado');
+            const btnHamburger = document.getElementById('btnHamburger');
+            const overlayMenu = document.getElementById('overlayMenu');
+            const btnCerrarOverlay = document.getElementById('btnCerrarOverlay');
+
+            // --- Funciones de datos ---
+
+            async function cargarDatos() {
+                try {
+                    const data = await supabase.getProductos();
+                    productos = data || [];
+                } catch (e) {
+                    console.error('Error al cargar datos:', e);
+                    productos = [];
+                }
+                renderizarTabla();
+                actualizarContador();
+            }
+
+            function guardarDatos() {
+                renderizarTabla();
+                actualizarContador();
+                if (channel) {
+                    try {
+                        channel.postMessage({ type: 'actualizar' });
+                    } catch (_) {}
+                }
+            }
+
+            function actualizarContador() {
+                contadorSpan.textContent = productos.length;
+            }
+
+            // --- Renderizar tabla ---
+
+            function aplicarFiltro() {
+                let resultado = productos;
+                if (terminoBusqueda) {
+                    resultado = resultado.filter(p =>
+                        p.nombre.toLowerCase().includes(terminoBusqueda) ||
+                        (p.ubicacion || '').toLowerCase().includes(terminoBusqueda)
+                    );
+                }
+                if (filtroActivo === 'contados') {
+                    resultado = resultado.filter(p => (p.conteo || 0) > 0);
+                } else if (filtroActivo === 'no_contados') {
+                    resultado = resultado.filter(p => (p.conteo || 0) === 0);
+                } else if (filtroActivo === 'con_diferencia') {
+                    resultado = resultado.filter(p => ((p.conteo || 0) - p.stock) !== 0);
+                } else if (filtroActivo === 'sin_diferencia') {
+                    resultado = resultado.filter(p => ((p.conteo || 0) - p.stock) === 0);
+                }
+                return resultado;
+            }
+
+            function actualizarChips() {
+                const total = productos.length;
+                const contados = productos.filter(p => (p.conteo || 0) > 0).length;
+                const noContados = total - contados;
+                const conDiferencia = productos.filter(p => ((p.conteo || 0) - p.stock) !== 0).length;
+                const sinDiferencia = total - conDiferencia;
+                chipTodos.textContent = total;
+                chipContados.textContent = contados;
+                chipNoContados.textContent = noContados;
+                chipConDiferencia.textContent = conDiferencia;
+                chipSinDiferencia.textContent = sinDiferencia;
+            }
+
+            function actualizarERI() {
+                const total = productos.length;
+                if (total === 0) {
+                    eriLabel.textContent = '📊 ERI: —';
+                    eriCorrectos.textContent = '0';
+                    eriTotal.textContent = '0';
+                    eriStockTotal.textContent = '0';
+                    eriConteoTotal.textContent = '0';
+                    eriDiffTotal.textContent = '0';
+                    return;
+                }
+                const correctos = productos.filter(p => ((p.conteo || 0) - p.stock) === 0).length;
+                const eri = (correctos / total) * 100;
+                const stockTotal = productos.reduce((s, p) => s + (p.stock || 0), 0);
+                const conteoTotal = productos.reduce((s, p) => s + (p.conteo || 0), 0);
+                const diffTotal = productos.reduce((s, p) => s + Math.abs((p.conteo || 0) - p.stock), 0);
+
+                eriLabel.textContent = `📊 ERI: ${eri.toFixed(1)}%`;
+                eriLabel.className = 'eri-label';
+                if (eri >= 95) eriLabel.classList.add('buena');
+                else if (eri >= 80) eriLabel.classList.add('media');
+                else eriLabel.classList.add('mala');
+
+                eriCorrectos.textContent = correctos;
+                eriTotal.textContent = total;
+                eriStockTotal.textContent = stockTotal;
+                eriConteoTotal.textContent = conteoTotal;
+                eriDiffTotal.textContent = diffTotal;
+            }
+
+            function renderizarTabla() {
+                const filtrados = aplicarFiltro();
+
+                actualizarChips();
+                actualizarERI();
+
+                if (filtrados.length === 0) {
+                    let msg = 'No hay productos. Agrega uno o carga masivamente.';
+                    if (terminoBusqueda) msg = 'Sin resultados para "' + escapeHtml(terminoBusqueda) + '"';
+                    else if (filtroActivo !== 'todos') msg = 'Sin resultados para este filtro.';
+                    cuerpoTabla.innerHTML = `<tr class="empty-row"><td colspan="6">${msg}</td></tr>`;
+                    return;
+                }
+
+                let html = '';
+                filtrados.forEach((p, index) => {
+                    const diff = (p.conteo || 0) - p.stock;
+                    let diffClass = 'cero';
+                    if (diff > 0) diffClass = 'positiva';
+                    else if (diff < 0) diffClass = 'negativa';
+
+                    html += `
+                        <tr data-id="${p.id}">
+                            <td class="nombre-cell">${escapeHtml(p.nombre)}</td>
+                            <td class="ubicacion-cell">
+                                <input type="text" value="${escapeHtml(p.ubicacion || '')}" 
+                                       data-id="${p.id}" class="input-ubicacion" placeholder="—">
+                            </td>
+                            <td class="stock-cell">${p.stock}</td>
+                            <td class="conteo-cell">
+                                <input type="number" min="0" step="1" value="${p.conteo || 0}" 
+                                       data-id="${p.id}" class="input-conteo">
+                            </td>
+                            <td class="diferencia-cell ${diffClass}">${diff >= 0 ? '+' : ''}${diff}</td>
+                            <td class="acciones-cell">
+                                <button class="btn-editar" data-id="${p.id}" title="Editar">✏️</button>
+                                <button class="btn-eliminar" data-id="${p.id}" title="Eliminar">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                cuerpoTabla.innerHTML = html;
+
+                // Event listeners para inputs de ubicacion
+                document.querySelectorAll('.input-ubicacion').forEach(input => {
+                    input.addEventListener('change', function(e) {
+                        const id = this.dataset.id;
+                        actualizarUbicacion(id, this.value.trim());
+                    });
+                    input.addEventListener('blur', function(e) {
+                        const id = this.dataset.id;
+                        actualizarUbicacion(id, this.value.trim());
+                    });
+                });
+
+                // Event listeners para inputs de conteo
+                document.querySelectorAll('.input-conteo').forEach(input => {
+                    input.addEventListener('change', function(e) {
+                        const id = this.dataset.id;
+                        const nuevoConteo = parseInt(this.value, 10);
+                        if (!isNaN(nuevoConteo) && nuevoConteo >= 0) {
+                            actualizarConteo(id, nuevoConteo);
+                        } else {
+                            const prod = productos.find(p => p.id === id);
+                            if (prod) this.value = prod.conteo || 0;
+                        }
+                    });
+                    input.addEventListener('blur', function(e) {
+                        const id = this.dataset.id;
+                        const nuevoConteo = parseInt(this.value, 10);
+                        if (!isNaN(nuevoConteo) && nuevoConteo >= 0) {
+                            actualizarConteo(id, nuevoConteo);
+                        } else {
+                            const prod = productos.find(p => p.id === id);
+                            if (prod) this.value = prod.conteo || 0;
+                        }
+                    });
+                });
+
+                cuerpoTabla.querySelectorAll('.btn-editar').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = this.dataset.id;
+                        abrirModalEditar(id);
+                    });
+                });
+                cuerpoTabla.querySelectorAll('.btn-eliminar').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = this.dataset.id;
+                        if (confirm('¿Eliminar este producto?')) {
+                            eliminarProducto(id);
+                        }
+                    });
+                });
+
+            }
+
+            // --- Utilidades ---
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // --- CRUD (Supabase) ---
+
+            async function agregarProducto(nombre, stock, conteo = 0, ubicacion = '') {
+                try {
+                    const data = await supabase.addProducto({
+                        nombre: nombre.trim(),
+                        stock: parseInt(stock, 10) || 0,
+                        conteo: parseInt(conteo, 10) || 0,
+                        ubicacion: ubicacion.trim()
+                    });
+                    if (data && data.length > 0) {
+                        productos.push(data[0]);
+                    }
+                    guardarDatos();
+                } catch (e) {
+                    console.error('Error al agregar:', e);
+                    alert('Error al agregar producto: ' + e.message);
+                }
+            }
+
+            async function editarProducto(id, nombre, stock, conteo, ubicacion) {
+                try {
+                    await supabase.updateProducto(id, {
+                        nombre: nombre.trim(),
+                        stock: parseInt(stock, 10) || 0,
+                        conteo: parseInt(conteo, 10) || 0,
+                        ubicacion: (ubicacion || '').trim()
+                    });
+                    const prod = productos.find(p => p.id === id);
+                    if (prod) {
+                        prod.nombre = nombre.trim();
+                        prod.stock = parseInt(stock, 10) || 0;
+                        prod.conteo = parseInt(conteo, 10) || 0;
+                        prod.ubicacion = (ubicacion || '').trim();
+                    }
+                    guardarDatos();
+                } catch (e) {
+                    console.error('Error al editar:', e);
+                    alert('Error al editar producto: ' + e.message);
+                }
+            }
+
+            async function eliminarProducto(id) {
+                try {
+                    await supabase.deleteProducto(id);
+                    productos = productos.filter(p => p.id !== id);
+                    guardarDatos();
+                } catch (e) {
+                    console.error('Error al eliminar:', e);
+                    alert('Error al eliminar producto: ' + e.message);
+                }
+            }
+
+            async function actualizarConteo(id, nuevoConteo) {
+                try {
+                    const prod = productos.find(p => p.id === id);
+                    if (!prod) return;
+                    if ((prod.conteo || 0) === nuevoConteo) return;
+                    await supabase.updateProducto(id, { conteo: nuevoConteo });
+                    prod.conteo = nuevoConteo;
+                    guardarDatos();
+                } catch (e) {
+                    console.error('Error al actualizar conteo:', e);
+                }
+            }
+
+            async function actualizarUbicacion(id, ubicacion) {
+                try {
+                    await supabase.updateProducto(id, { ubicacion: ubicacion });
+                    const prod = productos.find(p => p.id === id);
+                    if (prod) prod.ubicacion = ubicacion;
+                    guardarDatos();
+                } catch (e) {
+                    console.error('Error al actualizar ubicacion:', e);
+                }
+            }
+
+            // --- Modal Agregar / Editar ---
+
+            function abrirModalAgregar() {
+                modalTitulo.textContent = 'Agregar Producto';
+                productoId.value = '';
+                inputNombre.value = '';
+                inputStock.value = '';
+                inputUbicacion.value = '';
+                inputConteo.value = '0';
+                formProducto.reset();
+                modalProducto.classList.remove('hidden');
+                inputNombre.focus();
+            }
+
+            function abrirModalEditar(id) {
+                const prod = productos.find(p => p.id === id);
+                if (!prod) return;
+                modalTitulo.textContent = 'Editar Producto';
+                productoId.value = prod.id;
+                inputNombre.value = prod.nombre;
+                inputStock.value = prod.stock;
+                inputUbicacion.value = prod.ubicacion || '';
+                inputConteo.value = prod.conteo || 0;
+                modalProducto.classList.remove('hidden');
+                inputNombre.focus();
+            }
+
+            function cerrarModalProducto() {
+                modalProducto.classList.add('hidden');
+            }
+
+            // --- Modal Carga Masiva ---
+
+            function abrirModalCarga() {
+                textoCarga.value = '';
+                modalCarga.classList.remove('hidden');
+                textoCarga.focus();
+            }
+
+            function cerrarModalCarga() {
+                modalCarga.classList.add('hidden');
+            }
+
+            // --- Historial de conteos ---
+
+            // --- Snapshots (instantáneas de inventario) ---
+
+            async function guardarSnap() {
+                if (productos.length === 0) {
+                    alert('No hay productos para guardar.');
+                    return;
+                }
+                const now = new Date();
+                const nombre = 'Inventario ' + now.toLocaleDateString('es-ES', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+                const total = productos.length;
+                const correctos = productos.filter(p => ((p.conteo || 0) - p.stock) === 0).length;
+                const eri = (correctos / total) * 100;
+                const datos = productos.map(p => ({
+                    nombre: p.nombre,
+                    ubicacion: p.ubicacion || '',
+                    stock: p.stock,
+                    conteo: p.conteo || 0,
+                    diferencia: (p.conteo || 0) - p.stock
+                }));
+                try {
+                    await supabase.addSnapshot({
+                        nombre: nombre,
+                        fecha: now.toISOString(),
+                        datos: JSON.stringify(datos),
+                        total_productos: total,
+                        eri: Math.round(eri * 100) / 100
+                    });
+                    alert('✅ Instantánea guardada: ' + nombre);
+                } catch (e) {
+                    alert('Error al guardar instantánea: ' + e.message);
+                }
+            }
+
+            function abrirSnapLista() {
+                snapLista.innerHTML = '<div class="snap-vacio">Cargando...</div>';
+                modalSnapLista.classList.remove('hidden');
+                cargarSnapLista();
+            }
+
+            async function cargarSnapLista() {
+                try {
+                    const data = await supabase.getSnapshots();
+                    const snaps = data || [];
+                    if (snaps.length === 0) {
+                        snapLista.innerHTML = '<div class="snap-vacio">Aún no hay instantáneas guardadas. Usa el botón 📸 Snap para crear una.</div>';
+                        return;
+                    }
+                    let html = '';
+                    snaps.forEach(s => {
+                        const fecha = new Date(s.fecha).toLocaleString('es-ES', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                        const eri = s.eri || 0;
+                        let eriClass = 'buena';
+                        if (eri < 80) eriClass = 'mala';
+                        else if (eri < 95) eriClass = 'media';
+                        const nombre = s.nombre || fecha;
+                        html += `
+                            <div class="snap-item">
+                                <div class="snap-info">
+                                    <div class="snap-fecha">${escapeHtml(nombre)}</div>
+                                    <div class="snap-meta">${s.total_productos} productos • ${fecha}</div>
+                                </div>
+                                <span class="snap-eri ${eriClass}">${eri.toFixed(1)}%</span>
+                                <button class="snap-btn-ver" data-id="${s.id}">Ver</button>
+                            </div>
+                        `;
+                    });
+                    snapLista.innerHTML = html;
+                    snapLista.querySelectorAll('.snap-btn-ver').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            verSnap(id);
+                        });
+                    });
+                } catch (e) {
+                    console.error('Error al cargar instantáneas:', e);
+                    snapLista.innerHTML = '<div class="snap-vacio">Error al cargar instantáneas.</div>';
+                }
+            }
+
+            async function verSnap(id) {
+                try {
+                    const data = await supabase.getSnapshots();
+                    const snap = (data || []).find(s => s.id === id);
+                    if (!snap) {
+                        alert('Instantánea no encontrada.');
+                        return;
+                    }
+                    const fecha = new Date(snap.fecha).toLocaleString('es-ES', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                    snapVisorFecha.textContent = snap.nombre || fecha;
+                    snapVisorEri.textContent = `ERI: ${(snap.eri || 0).toFixed(1)}% — ${snap.total_productos} productos`;
+
+                    const datos = typeof snap.datos === 'string' ? JSON.parse(snap.datos) : snap.datos;
+                    snapActualDatos = datos;
+                    if (!datos || datos.length === 0) {
+                        snapVisorTabla.innerHTML = '<div class="snap-vacio">Sin datos.</div>';
+                    } else {
+                        let html = '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;width:100%;font-size:0.85rem;">' +
+                            '<thead><tr style="background:#f1f5f9;">' +
+                            '<th>Nombre</th><th>Ubicación</th>' +
+                            '<th style="text-align:center">Stock</th>' +
+                            '<th style="text-align:center">Conteo</th>' +
+                            '<th style="text-align:center">Diferencia</th>' +
+                            '</tr></thead><tbody>';
+                        datos.forEach(function(d) {
+                            var diff = d.diferencia;
+                            var color = '#64748b';
+                            if (diff > 0) color = '#16a34a';
+                            else if (diff < 0) color = '#dc2626';
+                            html += '<tr>' +
+                                '<td>' + escapeHtml(d.nombre) + '</td>' +
+                                '<td>' + escapeHtml(d.ubicacion || '') + '</td>' +
+                                '<td style="text-align:center">' + d.stock + '</td>' +
+                                '<td style="text-align:center">' + (d.conteo || 0) + '</td>' +
+                                '<td style="text-align:center;font-weight:bold;color:' + color + '">' + (diff >= 0 ? '+' : '') + diff + '</td>' +
+                            '</tr>';
+                        });
+                        html += '</tbody></table>';
+                        snapVisorTabla.innerHTML = html;
+                    }
+                    modalSnapLista.classList.add('hidden');
+                    modalSnapVisor.classList.remove('hidden');
+                } catch (e) {
+                    console.error('Error al ver instantánea:', e);
+                    alert('Error al cargar instantánea: ' + e.message);
+                }
+            }
+
+            function cerrarSnapLista() {
+                modalSnapLista.classList.add('hidden');
+            }
+
+            function cerrarSnapVisor() {
+                modalSnapVisor.classList.add('hidden');
+                snapActualDatos = null;
+            }
+
+            function exportarSnapExcel() {
+                var datos = snapActualDatos;
+                if (!datos || datos.length === 0) {
+                    alert('No hay datos para exportar.');
+                    return;
+                }
+                var total = datos.length;
+                var correctos = datos.filter(function(d) { return d.diferencia === 0; }).length;
+                var eri = (correctos / total) * 100;
+                var stockTotal = datos.reduce(function(s, d) { return s + (d.stock || 0); }, 0);
+                var conteoTotal = datos.reduce(function(s, d) { return s + (d.conteo || 0); }, 0);
+                var diffTotal = datos.reduce(function(s, d) { return s + Math.abs(d.diferencia); }, 0);
+                var contados = datos.filter(function(d) { return (d.conteo || 0) > 0; }).length;
+                var noContados = total - contados;
+                var conDiferencia = datos.filter(function(d) { return d.diferencia !== 0; }).length;
+                var sinDiferencia = total - conDiferencia;
+
+                var nombreSnap = snapVisorFecha.textContent || 'inventario';
+                var h = '<html><meta charset="utf-8"><body style="font-family:sans-serif;font-size:12px;">';
+
+                h += '<h2>Resumen ERI — ' + escapeHtml(nombreSnap) + '</h2>';
+                h += '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;margin-bottom:20px;">';
+                h += '<tr><td><strong>ERI (Exactitud)</strong></td><td>' + eri.toFixed(1) + '%</td></tr>';
+                h += '<tr><td><strong>Productos correctos</strong></td><td>' + correctos + ' / ' + total + '</td></tr>';
+                h += '<tr><td><strong>Stock total</strong></td><td>' + stockTotal + '</td></tr>';
+                h += '<tr><td><strong>Conteo total</strong></td><td>' + conteoTotal + '</td></tr>';
+                h += '<tr><td><strong>Diferencia total absoluta</strong></td><td>' + diffTotal + '</td></tr>';
+                h += '<tr><td><strong>Contados</strong></td><td>' + contados + '</td></tr>';
+                h += '<tr><td><strong>No contados</strong></td><td>' + noContados + '</td></tr>';
+                h += '<tr><td><strong>Con diferencia</strong></td><td>' + conDiferencia + '</td></tr>';
+                h += '<tr><td><strong>Sin diferencia</strong></td><td>' + sinDiferencia + '</td></tr>';
+                h += '<\/table>';
+
+                h += '<h2>Detalle de Productos</h2>';
+                h += '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">' +
+                    '<thead><tr style="background:#f1f5f9;">' +
+                    '<th>Nombre<\/th><th>Ubicaci\u00f3n<\/th>' +
+                    '<th style="text-align:center">Stock<\/th>' +
+                    '<th style="text-align:center">Conteo<\/th><th style="text-align:center">Diferencia<\/th>' +
+                    '<\/tr><\/thead><tbody>';
+                datos.forEach(function(d) {
+                    var diff = d.diferencia;
+                    var color = '#64748b';
+                    if (diff > 0) color = '#16a34a';
+                    else if (diff < 0) color = '#dc2626';
+                    h += '<tr>' +
+                        '<td>' + escapeHtml(d.nombre) + '<\/td>' +
+                        '<td>' + escapeHtml(d.ubicacion || '') + '<\/td>' +
+                        '<td style="text-align:center">' + d.stock + '<\/td>' +
+                        '<td style="text-align:center">' + (d.conteo || 0) + '<\/td>' +
+                        '<td style="text-align:center;font-weight:bold;color:' + color + '">' + (diff >= 0 ? '+' : '') + diff + '<\/td>' +
+                    '<\/tr>';
+                });
+                h += '<\/tbody><\/table><\/body><\/html>';
+                var blob = new Blob([h], { type: 'application/vnd.ms-excel;charset=utf-8' });
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'snapshot_' + new Date().toISOString().slice(0,10) + '.xls';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+
+            // --- Escáner QR ---
+
+            function detenerScanner() {
+                if (html5Scanner) {
+                    try {
+                        html5Scanner.stop().catch(function(){});
+                    } catch(_) {}
+                    html5Scanner = null;
+                }
+                scannerActivo = false;
+                btnScannerStart.textContent = '▶ Iniciar cámara';
+                scannerStatus.textContent = 'Cámara detenida';
+                scannerResultado.style.display = 'none';
+            }
+
+            function iniciarScanner() {
+                scannerResultado.style.display = 'none';
+                scannerStatus.textContent = 'Iniciando cámara...';
+                if (typeof Html5Qrcode === 'undefined') {
+                    scannerStatus.textContent = 'Error: librería no cargada.';
+                    return;
+                }
+                if (html5Scanner) detenerScanner();
+                html5Scanner = new Html5Qrcode('scannerReader');
+                Html5Qrcode.getCameras().then(function(camaras) {
+                    if (camaras && camaras.length > 0) {
+                        var camaraId = camaras[0].id;
+                        if (camaras.length > 1) camaraId = camaras[camaras.length - 1].id;
+                        var config = {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 },
+                            aspectRatio: 1.0
+                        };
+                        html5Scanner.start(camaraId, config,
+                            function(texto) {
+                                html5Scanner.pause(true);
+                                scannerActivo = true;
+                                btnScannerStart.textContent = '▶ Reanudar';
+                                scannerStatus.textContent = 'Código detectado';
+                                scannerResultado.style.display = 'block';
+                                scannerResultado.className = 'scanner-resultado ok';
+                                scannerResultado.textContent = '✅ Código: ' + texto;
+                                buscarProductoPorScan(texto);
+                            },
+                            function(err) {
+                                if (err && !err.includes('No MultiFormat')) {
+                                    console.warn('Scan error:', err);
+                                }
+                            }
+                        ).then(function() {
+                            scannerActivo = true;
+                            btnScannerStart.textContent = '⏸ Pausar';
+                            scannerStatus.textContent = 'Cámara activa. Apunta al código QR del rack.';
+                        }).catch(function(err) {
+                            scannerStatus.textContent = 'Error al iniciar cámara: ' + err;
+                            console.error(err);
+                        });
+                    } else {
+                        scannerStatus.textContent = 'No se encontró cámara.';
+                    }
+                }).catch(function(err) {
+                    scannerStatus.textContent = 'Error al acceder a cámara: ' + err;
+                });
+            }
+
+            function buscarProductoPorScan(texto) {
+                var nombre = texto.trim().toLowerCase();
+                var prod = null;
+                for (var i = 0; i < productos.length; i++) {
+                    if (productos[i].nombre.toLowerCase() === nombre) {
+                        prod = productos[i];
+                        break;
+                    }
+                }
+                if (!prod) {
+                    for (var j = 0; j < productos.length; j++) {
+                        if (productos[j].nombre.toLowerCase().includes(nombre)) {
+                            prod = productos[j];
+                            break;
+                        }
+                    }
+                }
+                if (prod) {
+                    scannerResultado.textContent = '✅ ' + prod.nombre + ' encontrado. Enfocando...';
+                    scannerStatus.textContent = 'Producto localizado';
+                    setTimeout(function() {
+                        cerrarScanner();
+                        enfocarProducto(prod.id);
+                    }, 600);
+                } else {
+                    scannerResultado.className = 'scanner-resultado err';
+                    scannerResultado.textContent = '❌ Producto no encontrado: "' + texto + '"';
+                    scannerStatus.textContent = 'Producto no encontrado';
+                }
+            }
+
+            function enfocarProducto(id) {
+                filtroActivo = 'todos';
+                terminoBusqueda = '';
+                inputBuscar.value = '';
+                document.querySelectorAll('.filtro-chip').forEach(function(c) { c.classList.remove('activo'); });
+                document.querySelector('.filtro-chip[data-filtro="todos"]').classList.add('activo');
+                renderizarTabla();
+                var fila = document.querySelector('tr[data-id="' + id + '"]');
+                if (fila) {
+                    fila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    fila.style.background = '#eff6ff';
+                    fila.style.transition = 'background 1s';
+                    setTimeout(function() { fila.style.background = ''; }, 2000);
+                    var input = fila.querySelector('.input-conteo');
+                    if (input) setTimeout(function() { input.focus(); input.select(); }, 500);
+                }
+            }
+
+            function abrirScanner() {
+                detenerScanner();
+                scannerReader.innerHTML = '';
+                scannerResultado.style.display = 'none';
+                scannerStatus.textContent = 'Presiona "Iniciar cámara" para empezar';
+                modalScanner.classList.remove('hidden');
+            }
+
+            function cerrarScanner() {
+                detenerScanner();
+                modalScanner.classList.add('hidden');
+            }
+
+            // --- Procesar carga masiva desde texto (batch insert) ---
+
+            async function procesarCargaTexto(texto) {
+                const lineas = texto.split(/\r?\n/).filter(line => line.trim() !== '');
+                const nuevos = [];
+                let errores = 0;
+                lineas.forEach(linea => {
+                    let partes = linea.split(',').map(s => s.trim());
+                    if (partes.length < 2) {
+                        partes = linea.split(';').map(s => s.trim());
+                    }
+                    if (partes.length >= 2) {
+                        const nombre = partes[0];
+                        const stock = parseInt(partes[1], 10);
+                        const conteo = partes.length >= 3 ? parseInt(partes[2], 10) : 0;
+                        const ubicacion = partes.length >= 4 ? partes[3].trim() : '';
+                        if (nombre && !isNaN(stock) && stock >= 0 && !isNaN(conteo) && conteo >= 0) {
+                            nuevos.push({
+                                nombre: nombre.trim(),
+                                stock,
+                                conteo,
+                                ubicacion
+                            });
+                        } else {
+                            errores++;
+                        }
+                    } else {
+                        errores++;
+                    }
+                });
+
+                if (nuevos.length === 0) {
+                    alert('No se pudo procesar ninguna línea. Verifica el formato (nombre,stock,conteo,ubicacion).');
+                    cerrarModalCarga();
+                    return;
+                }
+
+                try {
+                    const data = await supabase.addProductos(nuevos);
+                    if (data) {
+                        productos.push(...data);
+                    }
+                    guardarDatos();
+                    alert(`✅ Se agregaron ${nuevos.length} productos.${errores > 0 ? ` ❌ ${errores} líneas con error.` : ''}`);
+                } catch (e) {
+                    alert('Error al procesar carga masiva: ' + e.message);
+                }
+                cerrarModalCarga();
+            }
+
+            // --- Exportar Excel (HTML con colores) ---
+
+            function exportarExcel() {
+                if (productos.length === 0) {
+                    alert('No hay productos para exportar.');
+                    return;
+                }
+                var total = productos.length;
+                var correctos = productos.filter(function(p) { return ((p.conteo || 0) - p.stock) === 0; }).length;
+                var eri = (correctos / total) * 100;
+                var stockTotal = productos.reduce(function(s, p) { return s + (p.stock || 0); }, 0);
+                var conteoTotal = productos.reduce(function(s, p) { return s + (p.conteo || 0); }, 0);
+                var diffTotal = productos.reduce(function(s, p) { return s + Math.abs((p.conteo || 0) - p.stock); }, 0);
+                var contados = productos.filter(function(p) { return (p.conteo || 0) > 0; }).length;
+                var noContados = total - contados;
+                var conDiferencia = productos.filter(function(p) { return ((p.conteo || 0) - p.stock) !== 0; }).length;
+                var sinDiferencia = total - conDiferencia;
+
+                var h = '<html><meta charset="utf-8"><body style="font-family:sans-serif;font-size:12px;">';
+
+                h += '<h2>Resumen ERI</h2>';
+                h += '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;margin-bottom:20px;">';
+                h += '<tr><td><strong>ERI (Exactitud)</strong></td><td>' + eri.toFixed(1) + '%</td></tr>';
+                h += '<tr><td><strong>Productos correctos</strong></td><td>' + correctos + ' / ' + total + '</td></tr>';
+                h += '<tr><td><strong>Stock total</strong></td><td>' + stockTotal + '</td></tr>';
+                h += '<tr><td><strong>Conteo total</strong></td><td>' + conteoTotal + '</td></tr>';
+                h += '<tr><td><strong>Diferencia total absoluta</strong></td><td>' + diffTotal + '</td></tr>';
+                h += '<tr><td><strong>Contados</strong></td><td>' + contados + '</td></tr>';
+                h += '<tr><td><strong>No contados</strong></td><td>' + noContados + '</td></tr>';
+                h += '<tr><td><strong>Con diferencia</strong></td><td>' + conDiferencia + '</td></tr>';
+                h += '<tr><td><strong>Sin diferencia</strong></td><td>' + sinDiferencia + '</td></tr>';
+                h += '<\/table>';
+
+                h += '<h2>Detalle de Productos</h2>';
+                h += '<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">' +
+                    '<thead><tr style="background:#f1f5f9;">' +
+                    '<th>Nombre<\/th><th>Ubicaci\u00f3n<\/th>' +
+                    '<th style="text-align:center">Stock<\/th>' +
+                    '<th style="text-align:center">Conteo<\/th><th style="text-align:center">Diferencia<\/th>' +
+                    '<\/tr><\/thead><tbody>';
+                productos.forEach(function(p) {
+                    var diff = (p.conteo || 0) - p.stock;
+                    var color = '#64748b';
+                    if (diff > 0) color = '#16a34a';
+                    else if (diff < 0) color = '#dc2626';
+                    h += '<tr>' +
+                        '<td>' + escapeHtml(p.nombre) + '<\/td>' +
+                        '<td>' + escapeHtml(p.ubicacion || '') + '<\/td>' +
+                        '<td style="text-align:center">' + p.stock + '<\/td>' +
+                        '<td style="text-align:center">' + (p.conteo || 0) + '<\/td>' +
+                        '<td style="text-align:center;font-weight:bold;color:' + color + '">' + (diff >= 0 ? '+' : '') + diff + '<\/td>' +
+                    '<\/tr>';
+                });
+                h += '<\/tbody><\/table><\/body><\/html>';
+                var blob = new Blob([h], { type: 'application/vnd.ms-excel;charset=utf-8' });
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'inventario_' + new Date().toISOString().slice(0,10) + '.xls';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            }
+
+            // --- Importar desde archivo (reemplaza todos los datos) ---
+
+            function importarDesdeArchivo(file) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const contenido = e.target.result;
+                        let nuevos = [];
+                        try {
+                            const json = JSON.parse(contenido);
+                            if (Array.isArray(json)) {
+                                nuevos = json.map(item => ({
+                                    nombre: item.nombre || 'Sin nombre',
+                                    stock: parseInt(item.stock, 10) || 0,
+                                    conteo: parseInt(item.conteo, 10) || 0,
+                                    ubicacion: item.ubicacion || ''
+                                }));
+                            } else {
+                                throw new Error('No es un array');
+                            }
+                        } catch (_) {
+                            const lineas = contenido.split(/\r?\n/).filter(line => line.trim() !== '');
+                            if (lineas.length < 2) {
+                                alert('El archivo CSV debe tener al menos una fila de datos además de la cabecera.');
+                                return;
+                            }
+                            const cabecera = lineas[0].toLowerCase();
+                            let idxNombre = -1, idxStock = -1, idxConteo = -1, idxUbicacion = -1;
+                            const partesCab = cabecera.split(',').map(s => s.trim());
+                            partesCab.forEach((col, i) => {
+                                if (col.includes('nombre')) idxNombre = i;
+                                else if (col.includes('stock')) idxStock = i;
+                                else if (col.includes('conteo')) idxConteo = i;
+                                else if (col.includes('ubicacion') || col.includes('ubicaci')) idxUbicacion = i;
+                            });
+                            if (idxNombre === -1 || idxStock === -1) {
+                                alert('El archivo CSV debe tener columnas "nombre" y "stock" (y opcional "conteo", "ubicacion").');
+                                return;
+                            }
+                            for (let i = 1; i < lineas.length; i++) {
+                                const cols = lineas[i].split(',').map(s => s.trim());
+                                if (cols.length <= Math.max(idxNombre, idxStock, idxConteo, idxUbicacion)) continue;
+                                nuevos.push({
+                                    nombre: cols[idxNombre] || 'Sin nombre',
+                                    stock: parseInt(cols[idxStock], 10) || 0,
+                                    conteo: idxConteo !== -1 ? parseInt(cols[idxConteo], 10) || 0 : 0,
+                                    ubicacion: idxUbicacion !== -1 ? cols[idxUbicacion] : ''
+                                });
+                            }
+                        }
+                        if (nuevos.length === 0) {
+                            alert('No se encontraron datos válidos en el archivo.');
+                            return;
+                        }
+                        if (confirm(`¿Reemplazar los ${productos.length} productos actuales por ${nuevos.length} nuevos?`)) {
+                            try {
+                                const data = await supabase.replaceAll(nuevos);
+                                if (data) {
+                                    productos = data;
+                                } else {
+                                    await cargarDatos();
+                                }
+                                guardarDatos();
+                                alert(`✅ Importación exitosa: ${nuevos.length} productos.`);
+                            } catch (err) {
+                                alert('Error al importar: ' + err.message);
+                            }
+                        }
+                    } catch (err) {
+                        alert('Error al procesar el archivo: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            // --- Limpiar todos ---
+
+            async function limpiarTodo() {
+                if (productos.length === 0) {
+                    alert('Ya no hay productos.');
+                    return;
+                }
+                if (confirm('¿Eliminar TODOS los productos? Esta acción no se puede deshacer.')) {
+                    try {
+                        await supabase.deleteAll();
+                        productos = [];
+                        guardarDatos();
+                    } catch (e) {
+                        alert('Error al limpiar: ' + e.message);
+                    }
+                }
+            }
+
+            // --- Sincronización entre pestañas ---
+
+            if (channel) {
+                channel.onmessage = function(event) {
+                    if (event.data && event.data.type === 'actualizar') {
+                        cargarDatos();
+                    }
+                };
+            }
+
+            // --- Buscador ---
+
+            function filtrarProductos() {
+                terminoBusqueda = inputBuscar.value.toLowerCase().trim();
+                renderizarTabla();
+            }
+
+            // --- Hamburguesa ---
+
+            function abrirOverlay() {
+                overlayMenu.classList.add('open');
+            }
+
+            function cerrarOverlay() {
+                overlayMenu.classList.remove('open');
+            }
+
+            // --- Inicialización ---
+
+            function init() {
+                cargarDatos();
+
+                // Botones toolbar (escritorio)
+                document.getElementById('btnAgregar').addEventListener('click', abrirModalAgregar);
+                document.getElementById('btnCargaMasiva').addEventListener('click', abrirModalCarga);
+                document.getElementById('btnExportar').addEventListener('click', exportarExcel);
+                document.getElementById('btnImportar').addEventListener('click', function() {
+                    importFileInput.click();
+                });
+                document.getElementById('btnLimpiar').addEventListener('click', limpiarTodo);
+                document.getElementById('btnScanner').addEventListener('click', abrirScanner);
+                document.getElementById('btnSnap').addEventListener('click', guardarSnap);
+                document.getElementById('btnHistorial').addEventListener('click', abrirSnapLista);
+
+                // Botones overlay (mobile)
+                document.getElementById('ovBtnAgregar').addEventListener('click', function() { cerrarOverlay(); abrirModalAgregar(); });
+                document.getElementById('ovBtnCargaMasiva').addEventListener('click', function() { cerrarOverlay(); abrirModalCarga(); });
+                document.getElementById('ovBtnExportar').addEventListener('click', function() { cerrarOverlay(); exportarExcel(); });
+                document.getElementById('ovBtnImportar').addEventListener('click', function() { cerrarOverlay(); importFileInput.click(); });
+                document.getElementById('ovBtnScanner').addEventListener('click', function() { cerrarOverlay(); abrirScanner(); });
+                document.getElementById('ovBtnSnap').addEventListener('click', function() { cerrarOverlay(); guardarSnap(); });
+                document.getElementById('ovBtnHistorial').addEventListener('click', function() { cerrarOverlay(); abrirSnapLista(); });
+                document.getElementById('ovBtnLimpiar').addEventListener('click', function() { cerrarOverlay(); limpiarTodo(); });
+
+                // Hamburguesa
+                btnHamburger.addEventListener('click', abrirOverlay);
+                btnCerrarOverlay.addEventListener('click', cerrarOverlay);
+                overlayMenu.addEventListener('click', function(e) {
+                    if (e.target === overlayMenu) cerrarOverlay();
+                });
+
+                // Buscador
+                inputBuscar.addEventListener('input', filtrarProductos);
+
+                // Filtros rápidos
+                filtrosBar.querySelectorAll('.filtro-chip').forEach(chip => {
+                    chip.addEventListener('click', function(e) {
+                        filtrosBar.querySelectorAll('.filtro-chip').forEach(c => c.classList.remove('activo'));
+                        this.classList.add('activo');
+                        filtroActivo = this.dataset.filtro;
+                        renderizarTabla();
+                    });
+                });
+
+                closeModalProducto.addEventListener('click', cerrarModalProducto);
+                closeModalCarga.addEventListener('click', cerrarModalCarga);
+                closeSnapLista.addEventListener('click', cerrarSnapLista);
+                closeSnapVisor.addEventListener('click', cerrarSnapVisor);
+                btnExportarSnap.addEventListener('click', exportarSnapExcel);
+                closeModalScanner.addEventListener('click', cerrarScanner);
+                btnScannerStart.addEventListener('click', function() {
+                    if (!html5Scanner) {
+                        iniciarScanner();
+                    } else {
+                        html5Scanner.pause(false);
+                        btnScannerStart.textContent = '⏸ Pausar';
+                        scannerActivo = true;
+                        scannerStatus.textContent = 'Cámara activa. Apunta al código QR del rack.';
+                    }
+                });
+                btnScannerStop.addEventListener('click', detenerScanner);
+                modalProducto.addEventListener('click', function(e) {
+                    if (e.target === modalProducto) cerrarModalProducto();
+                });
+                modalCarga.addEventListener('click', function(e) {
+                    if (e.target === modalCarga) cerrarModalCarga();
+                });
+                modalSnapLista.addEventListener('click', function(e) {
+                    if (e.target === modalSnapLista) cerrarSnapLista();
+                });
+                modalSnapVisor.addEventListener('click', function(e) {
+                    if (e.target === modalSnapVisor) cerrarSnapVisor();
+                });
+                modalScanner.addEventListener('click', function(e) {
+                    if (e.target === modalScanner) cerrarScanner();
+                });
+
+                formProducto.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const nombre = inputNombre.value.trim();
+                    const stock = parseInt(inputStock.value, 10);
+                    const conteo = parseInt(inputConteo.value, 10) || 0;
+                    const ubicacion = inputUbicacion.value.trim();
+                    if (!nombre) {
+                        alert('El nombre es obligatorio.');
+                        return;
+                    }
+                    if (isNaN(stock) || stock < 0) {
+                        alert('El stock debe ser un número mayor o igual a 0.');
+                        return;
+                    }
+                    const id = productoId.value;
+                    if (id) {
+                        editarProducto(id, nombre, stock, conteo, ubicacion);
+                    } else {
+                        agregarProducto(nombre, stock, conteo, ubicacion);
+                    }
+                    cerrarModalProducto();
+                });
+
+                btnProcesarCarga.addEventListener('click', function() {
+                    const texto = textoCarga.value;
+                    if (!texto.trim()) {
+                        alert('Por favor pega algunos datos.');
+                        return;
+                    }
+                    procesarCargaTexto(texto);
+                });
+
+                btnSubirArchivo.addEventListener('click', function() {
+                    fileInputCarga.click();
+                });
+                fileInputCarga.addEventListener('change', function(e) {
+                    if (this.files.length > 0) {
+                        const file = this.files[0];
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            const texto = ev.target.result;
+                            procesarCargaTexto(texto);
+                            fileInputCarga.value = '';
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+
+                importFileInput.addEventListener('change', function(e) {
+                    if (this.files.length > 0) {
+                        importarDesdeArchivo(this.files[0]);
+                        this.value = '';
+                    }
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        if (!modalProducto.classList.contains('hidden')) cerrarModalProducto();
+                        if (!modalCarga.classList.contains('hidden')) cerrarModalCarga();
+                        if (!modalSnapLista.classList.contains('hidden')) cerrarSnapLista();
+                        if (!modalSnapVisor.classList.contains('hidden')) cerrarSnapVisor();
+                        if (!modalScanner.classList.contains('hidden')) cerrarScanner();
+                        cerrarOverlay();
+                    }
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+</body>
+</html>

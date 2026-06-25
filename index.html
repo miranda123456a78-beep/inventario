@@ -1614,8 +1614,17 @@
                         if (camaras.length > 1) camaraId = camaras[camaras.length - 1].id;
                         var config = {
                             fps: 10,
-                            qrbox: { width: 250, height: 250 },
-                            aspectRatio: 1.0
+                            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                                var minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                                var size = Math.floor(minEdge * 0.6);
+                                return { width: size, height: size };
+                            },
+                            aspectRatio: 1.333,
+                            videoConstraints: {
+                                facingMode: "environment",
+                                width: { ideal: 640 },
+                                height: { ideal: 480 }
+                            }
                         };
                         html5Scanner.start(camaraId, config,
                             function(texto) {
